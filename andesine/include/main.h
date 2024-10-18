@@ -75,6 +75,12 @@ void opcontrol(void);
  * You can add C++-only headers here
  */
 //#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <execution>
+#include "helpers.hpp"
+#include "motors.hpp"
+#include "controller.hpp"
 #endif
 
 #endif  // _PROS_MAIN_H_
