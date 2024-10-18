@@ -1,3 +1,14 @@
+/**
+ * @file controller.cpp
+ * @author Veer Singh
+ * @brief basic controller stick functions
+ * @version 0.1
+ * @date 2024-10-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "main.h"
 
 using namespace std;

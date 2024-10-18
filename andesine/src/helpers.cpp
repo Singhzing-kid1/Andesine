@@ -1,3 +1,14 @@
+/**
+ * @file helpers.cpp
+ * @author Veer
+ * @brief any custom helper go here
+ * @version 0.1
+ * @date 2024-10-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "main.h"
 
 using namespace std;

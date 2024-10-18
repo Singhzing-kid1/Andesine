@@ -1,3 +1,14 @@
+/**
+ * @file motors.cpp
+ * @author Veer Singh
+ * @brief definitions of motors and motor groups and an accel. function
+ * @version 0.1
+ * @date 2024-10-17
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include "main.h"
 
 using namespace std;
