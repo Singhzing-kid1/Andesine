@@ -13,7 +13,6 @@
 
 using namespace std;
 using namespace pros;
-using namespace andesine;
 
 namespace andesine{
     aMotorGroup::aMotorGroup(){}
