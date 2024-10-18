@@ -55,7 +55,33 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+
+	int32_t leftSpeed;
+	int32_t rightSpeed;
+	int32_t avgSpeed;
+
 	while (true) {
+		rightSpeed = accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y), rightSpeed);
+		leftSpeed = accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y), leftSpeed);
+
+		if(master.get_analog(ANALOG_RIGHT_Y) != 0 || master.get_analog(ANALOG_LEFT_Y) != 0){
+			switch(closeEnough(leftSpeed, rightSpeed)){
+				case true:
+					avgSpeed = 0.5*(leftSpeed + rightSpeed);
+					leftMotorGroup = leftSpeed;
+					rightMotorGroup = rightSpeed;
+					break;
+
+				case false:
+					leftMotorGroup = leftSpeed;
+					rightMotorGroup = rightSpeed;
+					break;
+			}
+		} else {
+			leftMotorGroup.brake();
+			rightMotorGroup.brake();
+		}
+
 
 		pros::delay(20);                               // Run for 20 ms then update
 	}
