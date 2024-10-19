@@ -31,7 +31,6 @@ namespace andesine{
 
     void aMotorGroup::operator=(const int32_t& speed){
         for_each(
-            execution::par,
             motors.begin(),
             motors.end(),
             [speed](Motor& motor){
@@ -43,6 +42,7 @@ namespace andesine{
     aMotorGroup& aMotorGroup::operator=(const pair<vector<Motor>, MotorGears>& params){
         for(auto motor : params.first){
             motors.push_back(motor);
+            ports.push_back(motor.get_port());
         }
         gearing = params.second;
 
@@ -51,7 +51,6 @@ namespace andesine{
 
     void aMotorGroup::brake(){
         for_each(
-            execution::par,
             motors.begin(),
             motors.end(),
             [](Motor& motor){
