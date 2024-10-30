@@ -74,21 +74,41 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1, -2, 3});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-4, 5, -6});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
+	int32_t avgSpeed = 0;
+	int32_t leftSpeed = 0;
+	int32_t rightSpeed = 0;
+
+	Clock::duration deltaTime;
+	Clock::time_point currentFrame;
+	Clock::time_point lastFrame;
 
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
+		currentFrame = Clock::now();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
-		pros::delay(20);                               // Run for 20 ms then update
+		leftSpeed = accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y), leftSpeed);
+		rightSpeed = accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y), rightSpeed);
+
+		if(master.get_analog(ANALOG_RIGHT_Y) != 0 || master.get_analog(ANALOG_LEFT_Y) != 0){
+			switch(closeEnough(leftSpeed, rightSpeed)){
+				case true:
+					avgSpeed = 0.5*(leftSpeed + rightSpeed);
+					leftMotorGroup = avgSpeed;
+					rightMotorGroup = avgSpeed;
+					break;
+
+				case false:
+					leftMotorGroup = leftSpeed;
+					rightMotorGroup = rightSpeed;
+					break;
+			}
+		} else {
+			leftMotorGroup.brake();
+			rightMotorGroup.brake();
+		}
+
+		cout << deltaTime.count() << "\n";
 	}
 }
