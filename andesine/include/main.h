@@ -74,7 +74,11 @@ void opcontrol(void);
 /**
  * You can add C++-only headers here
  */
-//#include <iostream>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <ostream>
+#include <string>
 #include <vector>
 #include <algorithm>
 #include "helpers.hpp"

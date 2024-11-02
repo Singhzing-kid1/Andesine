@@ -58,4 +58,35 @@
             }
         );
     }
+    
+
+    logger::logger(logger::controlMode controlMode){
+        mode = controlMode;
+        nameRules.open("/usd/nameRules.txt");
+
+        if(nameRules.is_open()){
+            sdInstalled = true;
+        } else {
+            sdInstalled = false;
+        }
+
+        nameRules.close();
+
+        createFile(nameGen(&nameRules));
+    }
+
+    logger::~logger(){
+        writeToFile();
+        logFile.close();
+    }
+
+    void writeToBuffer(vector<aMotorGroup> drivetrainMotors, Controller controller){
+        ostringstream leftMotors;
+        ostringstream rightMotors;
+        ostringstream otherMotors;
+
+        for (auto motorGroup : drivetrainMotors){
+
+        }
+    }
  }
