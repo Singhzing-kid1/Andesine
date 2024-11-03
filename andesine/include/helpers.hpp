@@ -11,31 +11,32 @@ using namespace pros;
 namespace andesine{
     class aMotorGroup{
         public:
-            enum ID {LEFT, RIGHT, OTHER}
+            enum ID {LEFT, RIGHT, OTHER};
 
             aMotorGroup();
-            aMotorGroup(const vector<Motor>&, MotorGears, bool);
+            aMotorGroup(const vector<Motor>&, MotorGears, ID, bool);
 
             vector<Motor> motors;
             vector<int8_t> ports;
             MotorGears gearing;
             bool reversed;
+            ID id;
 
             void operator=(const int32_t&);
-            aMotorGroup& operator=(const tuple<vector<Motor>, MotorGears, bool>&);
+            aMotorGroup& operator=(const tuple<vector<Motor>, MotorGears, bool, ID>&);
 
             void brake();
     };
 
     class logger{
         public:
-            enum controlMode {PIT, SKILLS_OPCONTROL, SKILLS_AUTON, OPCONTROL, AUTON};
+            enum controlMode {PIT = 0, SKILLS_OPCONTROL = 1, SKILLS_AUTON = 2, OPCONTROL = 3, AUTON = 4};
 
             logger(controlMode);
             ~logger();
 
             // Drive train Motor Groups, batter temp, battery voltage, capacity, current draw, controller, sd card installed. 
-            void writeToBuffer(vector<aMotorGroup>, Controller);
+            void writeToBuffer(vector<aMotorGroup>&, Controller, uint32_t);
             void writeToFile();
 
         private:
@@ -50,9 +51,6 @@ namespace andesine{
 
             string nameGen(fstream*);
             void createFile(string);
-
-
-
     };
 }
 

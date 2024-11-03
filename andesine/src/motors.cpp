@@ -22,8 +22,13 @@ Motor rightMotor1(4);
 Motor rightMotor2(5);
 Motor rightMotor3(6);
 
-andesine::aMotorGroup rightMotorGroup = {vector<Motor>{rightMotor1, rightMotor2, rightMotor3}, MotorCartridge::blue, false};
-andesine::aMotorGroup leftMotorGroup = {vector<Motor>{leftMotor1, leftMotor2, leftMotor3}, MotorCartridge::blue, true};
+andesine::aMotorGroup rightMotorGroup;
+andesine::aMotorGroup leftMotorGroup;
+
+void initializeMotors() {
+    rightMotorGroup = make_tuple(vector<Motor>{rightMotor1, rightMotor2, rightMotor3}, MotorCartridge::blue, false, andesine::aMotorGroup::ID::RIGHT);
+    leftMotorGroup = make_tuple(vector<Motor>{leftMotor1, leftMotor2, leftMotor3}, MotorCartridge::blue, true, andesine::aMotorGroup::ID::LEFT);
+}
 
 int32_t accelerate(int32_t newSpeed, int32_t oldSpeed){
     if(newSpeed > oldSpeed){

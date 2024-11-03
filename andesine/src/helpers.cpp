@@ -17,7 +17,7 @@
  namespace andesine{
     aMotorGroup::aMotorGroup(){}
 
-    aMotorGroup::aMotorGroup(const vector<Motor>& motors, MotorGears gearing, bool reversed = false){
+    aMotorGroup::aMotorGroup(const vector<Motor>& motors, MotorGears gearing, ID id, bool reversed = false){
         for(auto motor : motors){
             ports.push_back(motor.get_port());
             this->motors.push_back(motor);
@@ -37,7 +37,7 @@
         );
     }
 
-    aMotorGroup& aMotorGroup::operator=(const tuple<vector<Motor>, MotorGears, bool>& params){
+    aMotorGroup& aMotorGroup::operator=(const tuple<vector<Motor>, MotorGears, bool, ID>& params){
         for(auto motor : get<0>(params)){
             motors.push_back(motor);
             ports.push_back(motor.get_port());
@@ -45,6 +45,7 @@
 
         gearing = get<1>(params);
         reversed = get<2>(params);
+        id = get<3>(params);
 
         return *this;
     }
@@ -80,13 +81,83 @@
         logFile.close();
     }
 
-    void writeToBuffer(vector<aMotorGroup> drivetrainMotors, Controller controller){
+    void logger::writeToBuffer(vector<aMotorGroup>& drivetrainMotors, Controller controller, uint32_t time){
+        ostringstream leftMotorTemps;
+        ostringstream rightMotorTemps;
+        ostringstream otherMotorTemps;
+
+        ostringstream leftMotorEncoders;
+        ostringstream rightMotorEncoders;
+        ostringstream otherMotorEncoders;
+
         ostringstream leftMotors;
         ostringstream rightMotors;
         ostringstream otherMotors;
 
-        for (auto motorGroup : drivetrainMotors){
+        ostringstream controllerStuff;
 
+        ostringstream batteryStuff;
+
+        for (auto motorGroup : drivetrainMotors){
+            switch(motorGroup.id){
+                case aMotorGroup::ID::LEFT:
+                    for (auto motor : motorGroup.motors){
+                        leftMotorTemps << motor.get_temperature() << ", ";
+                        leftMotorEncoders << motor.get_position() << ", ";
+                    }
+
+                    leftMotors << leftMotorTemps.str() << ", " << leftMotorEncoders.str();
+                    break;
+
+                case aMotorGroup::ID::RIGHT:
+                    for (auto motor : motorGroup.motors){
+                        rightMotorTemps << motor.get_temperature() << ", ";
+                        rightMotorEncoders << motor.get_position() << ", ";
+                    }
+
+                    rightMotors << rightMotorTemps.str() << ", " << rightMotorEncoders.str();
+                    break;
+
+                case aMotorGroup::ID::OTHER:
+                    for (auto motor : motorGroup.motors){
+                        otherMotorTemps << motor.get_temperature() << ", ";
+                        otherMotorEncoders << motor.get_position() << ", ";
+                    }
+
+                    otherMotors << otherMotorTemps.str() << ", " << otherMotorEncoders.str();
+                    break;
+            }
         }
+
+        controllerStuff << controller.get_analog(ANALOG_LEFT_Y) << ", " << controller.get_analog(ANALOG_LEFT_X) << ", " << controller.get_analog(ANALOG_RIGHT_Y) << ", " << controller.get_analog(ANALOG_RIGHT_X) << ", " << controller.get_digital(DIGITAL_L1) << ", " << controller.get_digital(DIGITAL_L2) << ", " << controller.get_digital(DIGITAL_R1) << ", " << controller.get_digital(DIGITAL_R2) << ", " << controller.get_digital(DIGITAL_A) << ", " << controller.get_digital(DIGITAL_Y) << ", ";
+        batteryStuff << battery::get_temperature() << ", " << battery::get_current() << ", " << battery::get_capacity() << ", " << controller.get_battery_level();
+
+        buffer << time << ", " << leftMotors.str() << ", " << rightMotors.str() << ", " << otherMotors.str() << ", " << controllerStuff.str() << batteryStuff.str() << "\n";
+    }
+
+    void logger::writeToFile(){
+        logFile << buffer.str();
+        logFile.flush();
+        buffer.str("");
+        buffer.clear();
+    }
+
+    string logger::nameGen(fstream* nameRulesFile){
+        string competition, match, name;
+
+        getline(*nameRulesFile, competition);
+        getline(*nameRulesFile, match);
+
+        name += competition;
+        name += match;
+
+        name += "." + to_string(mode);
+        name += ".log";
+
+        return name;
+    }
+
+    void logger::createFile(string name){
+        logFile.open("/usd/" + name, ios_base::app);
     }
  }

@@ -27,6 +27,8 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	initializeMotors();
+
 }
 
 /**
@@ -78,13 +80,16 @@ void opcontrol() {
 	int32_t leftSpeed = 0;
 	int32_t rightSpeed = 0;
 
-	Clock::duration deltaTime;
-	Clock::time_point currentFrame;
-	Clock::time_point lastFrame;
+	uint32_t deltaTime;
+	uint32_t currentFrame;
+	uint32_t lastFrame;
 
+	andesine::logger opControlLogger(andesine::logger::controlMode::OPCONTROL);
+
+	vector<andesine::aMotorGroup> motors = {leftMotorGroup, rightMotorGroup};
 
 	while (true) {
-		currentFrame = Clock::now();
+		currentFrame = millis();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
@@ -109,6 +114,12 @@ void opcontrol() {
 			rightMotorGroup.brake();
 		}
 
-		cout << deltaTime.count() << "\n";
+		opControlLogger.writeToBuffer(motors, master, currentFrame);
+
+		if(currentFrame % 20 == 0){
+			opControlLogger.writeToFile();
+		}
+
+		cout << deltaTime << ", " << currentFrame << "\n";
 	}
 }
