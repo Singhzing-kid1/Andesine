@@ -120,6 +120,8 @@ void opcontrol() {
 			opControlLogger.writeToFile();
 		}
 
-		cout << deltaTime << ", " << currentFrame << "\n";
+		if(currentFrame >= 104980){
+			opControlLogger.~logger();
+		}
 	}
 }
