@@ -71,8 +71,6 @@
             sdInstalled = false;
         }
 
-        nameRules.close();
-
         createFile(nameGen(&nameRules));
     }
 
@@ -153,6 +151,8 @@
 
         name += "." + to_string(mode);
         name += ".log";
+
+        cout << name;
 
         return name;
     }

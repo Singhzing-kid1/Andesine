@@ -80,9 +80,9 @@ void opcontrol() {
 	int32_t leftSpeed = 0;
 	int32_t rightSpeed = 0;
 
-	uint32_t deltaTime;
-	uint32_t currentFrame;
-	uint32_t lastFrame;
+	uint32_t deltaTime = 0;
+	uint32_t currentFrame = 0;
+	uint32_t lastFrame = 0;
 
 	andesine::logger opControlLogger(andesine::logger::controlMode::OPCONTROL);
 
