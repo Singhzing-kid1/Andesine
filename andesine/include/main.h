@@ -81,6 +81,8 @@ void opcontrol(void);
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <map>
+#include <functional>
 #include "helpers.hpp"
 #include "motors.hpp"
 #include "controller.hpp"

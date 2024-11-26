@@ -52,6 +52,33 @@ namespace andesine{
             string nameGen(fstream*);
             void createFile(string);
     };
+
+    class user{
+        public:
+            enum accelCurve {SIGMOID, LOG};
+            enum userID {LEO, OTHER};
+            user(userID);
+
+            userID id;
+
+            map<userID, accelCurve> defaultAccelCurves = {
+                {userID::LEO, accelCurve::LOG}
+            };
+
+            map<accelCurve, function<int32_t(double, double, int32_t)>> functionCalls = {
+                {accelCurve::LOG, [this](double a, double b, int32_t c) { return this->exponential(a, b, c); }},
+                {accelCurve::SIGMOID, [this](double a, double b, int32_t c) { return this->sigmoid(a, b, c); }}
+            };
+
+            accelCurve userDefault;
+
+            int32_t accelerate(int32_t, accelCurve);
+
+        private:
+
+            int32_t sigmoid(double, double, int32_t);
+            int32_t exponential(double, double, int32_t);
+    };
 }
 
 

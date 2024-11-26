@@ -160,4 +160,42 @@
     void logger::createFile(string name){
         logFile.open("/usd/" + name, ios_base::app);
     }
+
+    user::user(userID user){
+        id = user;
+        userDefault = defaultAccelCurves[user];
+    }
+
+    int32_t user::accelerate(int32_t speed, accelCurve curve){
+        int32_t output;
+        switch (id){
+            case userID::LEO:
+                output = functionCalls[curve](10, -0.075, speed);
+        }
+
+        return output;
+    }
+
+    int32_t user::sigmoid(double steepness, double midpoint, int32_t input){
+        int sign = input/abs(input);
+        cout << sign * 127 * (1/(1+exp((-steepness*((abs(input)/127) - midpoint))))) << "\n";
+        
+        return sign * 127 * (1/(1+exp((-steepness*((abs(input)/127) - midpoint)))));
+    }
+
+    int32_t user::exponential(double position, double expon, int32_t input){
+        double sign = input/abs(input);
+        
+        double output = 0;
+        double topExpon = (expon * abs((double)input - position));
+        double botExpon = 127 * expon;
+
+        double top = 16129 * (exp(topExpon) - (double)1);
+        double bottom = 127 * (exp(botExpon) - (double)1);
+
+        output = (top / bottom);
+
+        return input == 0 ? 0 : sign * (int32_t)floor(output);
+        
+    }
  }

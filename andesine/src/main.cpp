@@ -85,6 +85,7 @@ void opcontrol() {
 	uint32_t lastFrame = 0;
 
 	andesine::logger opControlLogger(andesine::logger::controlMode::OPCONTROL);
+	andesine::user user(andesine::user::userID::LEO);
 
 	vector<andesine::aMotorGroup> motors = {leftMotorGroup, rightMotorGroup};
 
@@ -93,8 +94,10 @@ void opcontrol() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		leftSpeed = accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y), leftSpeed);
-		rightSpeed = accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y), rightSpeed);
+		leftSpeed = user.accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y), user.userDefault);
+		rightSpeed = user.accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y), user.userDefault);
+
+		cout << deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y) << ", " << leftSpeed << " | " << deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y) << ", " << rightSpeed << "\n";
 
 		if(master.get_analog(ANALOG_RIGHT_Y) != 0 || master.get_analog(ANALOG_LEFT_Y) != 0){
 			switch(closeEnough(leftSpeed, rightSpeed)){
