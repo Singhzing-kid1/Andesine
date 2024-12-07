@@ -85,7 +85,9 @@ void opcontrol() {
 	uint32_t lastFrame = 0;
 
 	andesine::logger opControlLogger(andesine::logger::controlMode::OPCONTROL);
-	andesine::user user(andesine::user::userID::LEO);
+	andesine::user user(andesine::user::userID::LEO, 10, master);
+
+	andesine::user::accelCurve activeCurve = user.userDefault;
 
 	vector<andesine::aMotorGroup> motors = {leftMotorGroup, rightMotorGroup};
 
@@ -94,10 +96,8 @@ void opcontrol() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		leftSpeed = user.accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y), user.userDefault);
-		rightSpeed = user.accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y), user.userDefault);
-
-		cout << deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y) << ", " << leftSpeed << " | " << deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y) << ", " << rightSpeed << "\n";
+		leftSpeed = user.accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y, user.deadzone), activeCurve);
+		rightSpeed = user.accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y, user.deadzone), activeCurve);
 
 		if(master.get_analog(ANALOG_RIGHT_Y) != 0 || master.get_analog(ANALOG_LEFT_Y) != 0){
 			switch(closeEnough(leftSpeed, rightSpeed)){
@@ -115,6 +115,20 @@ void opcontrol() {
 		} else {
 			leftMotorGroup.brake();
 			rightMotorGroup.brake();
+		}
+
+		if(master.get_digital(DIGITAL_A) == 1){
+			switch(activeCurve){
+				case andesine::user::accelCurve::LOG:
+					activeCurve = andesine::user::accelCurve::SIGMOID;
+					master.print(1, 0, "Sigmoid");
+					break;
+
+				case andesine::user::accelCurve::SIGMOID:
+					activeCurve = andesine::user::accelCurve::LOG;
+					master.print(1, 0, "Log    ");
+					break;
+			}
 		}
 
 		opControlLogger.writeToBuffer(motors, master, currentFrame);

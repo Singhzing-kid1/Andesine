@@ -19,8 +19,8 @@ Motor leftMotor2(2);
 Motor leftMotor3(3);
 
 Motor rightMotor1(4);
-Motor rightMotor2(5);
-Motor rightMotor3(6);
+Motor rightMotor2(6);
+Motor rightMotor3(7);
 
 andesine::aMotorGroup rightMotorGroup;
 andesine::aMotorGroup leftMotorGroup;

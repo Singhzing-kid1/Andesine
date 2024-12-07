@@ -57,9 +57,10 @@ namespace andesine{
         public:
             enum accelCurve {SIGMOID, LOG};
             enum userID {LEO, OTHER};
-            user(userID);
+            user(userID, int32_t, Controller);
 
             userID id;
+            int32_t deadzone;
 
             map<userID, accelCurve> defaultAccelCurves = {
                 {userID::LEO, accelCurve::LOG}

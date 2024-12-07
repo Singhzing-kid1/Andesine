@@ -161,16 +161,54 @@
         logFile.open("/usd/" + name, ios_base::app);
     }
 
-    user::user(userID user){
+    user::user(userID user, int32_t deadzone, Controller controller){
         id = user;
         userDefault = defaultAccelCurves[user];
+        this->deadzone = deadzone;
+
+        switch (user){
+            case userID::LEO:
+                controller.print(0, 0, "Welcome Leo");
+                switch (userDefault){
+                    case accelCurve::LOG:
+                        controller.print(1, 0, "Log");
+                        break;
+
+                    case accelCurve::SIGMOID:
+                        controller.print(1, 0, "Sigmoid");
+                        break;
+                }
+                break;
+
+            case userID::OTHER:
+                controller.print(0, 0, "Welcome");
+                switch (userDefault){
+                    case accelCurve::LOG:
+                        controller.print(1, 0, "You are using the LOG curve");
+                        break;
+
+                    case accelCurve::SIGMOID:
+                        controller.print(1, 0, "You are using the Sigmoid curve");
+                        break;
+                }
+                break;
+            
+        }
     }
 
     int32_t user::accelerate(int32_t speed, accelCurve curve){
         int32_t output;
         switch (id){
             case userID::LEO:
-                output = functionCalls[curve](10, -0.075, speed);
+                switch (curve){
+                    case accelCurve::LOG:
+                        output = functionCalls[accelCurve::LOG](10, -0.075, speed); 
+                        break;
+
+                    case accelCurve::SIGMOID:
+                        output = functionCalls[accelCurve::SIGMOID](8.7, 0.3, speed);
+                }
+
         }
 
         return output;
@@ -193,9 +231,9 @@
         double top = 16129 * (exp(topExpon) - (double)1);
         double bottom = 127 * (exp(botExpon) - (double)1);
 
-        output = (top / bottom);
+        output = floor(top / bottom);
 
-        return input == 0 ? 0 : sign * (int32_t)floor(output);
+        return input == 0 ? 0 : sign * (int32_t)output;
         
     }
  }

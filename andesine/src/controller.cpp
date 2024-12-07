@@ -20,8 +20,8 @@ bool isInside(int32_t x, int32_t y, int32_t radius){
     return (hypot(x, y) <= radius);
 }
 
-int32_t deadzone(controller_analog_e_t valueX, controller_analog_e_t valueY){
-    bool insideCheck = isInside(master.get_analog(valueX), master.get_analog(valueY), 10);
+int32_t deadzone(controller_analog_e_t valueX, controller_analog_e_t valueY, int32_t deadzone){
+    bool insideCheck = isInside(master.get_analog(valueX), master.get_analog(valueY), deadzone);
 
     switch(insideCheck){
         case true:
@@ -38,6 +38,8 @@ int32_t deadzone(controller_analog_e_t valueX, controller_analog_e_t valueY){
                 return master.get_analog(valueY);
             }
     }
+
+    return 0;
 }
 
 bool closeEnough(int32_t leftSpeed, int32_t rightSpeed){
