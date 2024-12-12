@@ -16,6 +16,15 @@ void on_center_button() {
 	}
 }
 
+bool lastState = false;
+bool risingEdgeDetected = false;
+
+bool risingEdgeDetector(bool currentState){
+	risingEdgeDetected = currentState && !lastState;
+	lastState = currentState;
+	return risingEdgeDetected;
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -87,9 +96,15 @@ void opcontrol() {
 	andesine::logger opControlLogger(andesine::logger::controlMode::OPCONTROL);
 	andesine::user user(andesine::user::userID::LEO, 10, master);
 
+	adi::Pneumatics air('a', false);
+
+	andesine::risingEdgeDetector edgerL1;
+	andesine::risingEdgeDetector edgerL2;
+	andesine::risingEdgeDetector edgerA;
+
 	andesine::user::accelCurve activeCurve = user.userDefault;
 
-	vector<andesine::aMotorGroup> motors = {leftMotorGroup, rightMotorGroup};
+	vector<andesine::aMotorGroup> motors = {leftMotorGroup, rightMotorGroup, otherMotors};
 
 	while (true) {
 		currentFrame = millis();
@@ -98,6 +113,10 @@ void opcontrol() {
 
 		leftSpeed = user.accelerate(deadzone(ANALOG_LEFT_X, ANALOG_LEFT_Y, user.deadzone), activeCurve);
 		rightSpeed = user.accelerate(deadzone(ANALOG_RIGHT_X, ANALOG_RIGHT_Y, user.deadzone), activeCurve);
+
+		edgerL1.setInput(master.get_digital(DIGITAL_L1));
+		edgerL2.setInput(master.get_digital(DIGITAL_L2));
+		edgerA.setInput(master.get_digital(DIGITAL_A));
 
 		if(master.get_analog(ANALOG_RIGHT_Y) != 0 || master.get_analog(ANALOG_LEFT_Y) != 0){
 			switch(closeEnough(leftSpeed, rightSpeed)){
@@ -117,7 +136,8 @@ void opcontrol() {
 			rightMotorGroup.brake();
 		}
 
-		if(master.get_digital(DIGITAL_A) == 1){
+
+		if(edgerA.checkRisingEdge()){
 			switch(activeCurve){
 				case andesine::user::accelCurve::LOG:
 					activeCurve = andesine::user::accelCurve::SIGMOID;
@@ -130,6 +150,29 @@ void opcontrol() {
 					break;
 			}
 		}
+
+		if(edgerL1.checkRisingEdge()){
+			air.extend();
+		}
+
+		if(edgerL2.checkRisingEdge()){
+			air.retract();
+		}
+
+		if(master.get_digital(DIGITAL_R1)){
+			intake1.move(-127);
+		} else {
+			intake1.brake();
+		}
+
+		if(master.get_digital(DIGITAL_R2)){
+			intake2.move(-127);
+		} else {
+			intake2.brake();
+
+		}
+
+
 
 		opControlLogger.writeToBuffer(motors, master, currentFrame);
 

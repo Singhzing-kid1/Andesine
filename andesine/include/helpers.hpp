@@ -80,6 +80,22 @@ namespace andesine{
             int32_t sigmoid(double, double, int32_t);
             int32_t exponential(double, double, int32_t);
     };
+
+    class risingEdgeDetector{
+        public:
+            risingEdgeDetector();
+            void setInput(bool);
+            bool checkRisingEdge();
+
+        private:
+            Task task;
+            bool lastState;
+            bool risingEdgeDetected;
+            bool inputState;
+            Mutex mutex;
+
+            void detectorTask();
+    };
 }
 
 

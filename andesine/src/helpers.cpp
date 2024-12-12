@@ -236,4 +236,43 @@
         return input == 0 ? 0 : sign * (int32_t)output;
         
     }
+    
+    risingEdgeDetector::risingEdgeDetector() : task([this]{detectorTask();}) {
+        lastState = false;
+        risingEdgeDetected = false;
+        inputState = false;
+    }
+
+    void risingEdgeDetector::detectorTask(){
+        while(true){
+            bool currentState;
+            {
+                mutex.take(TIMEOUT_MAX);
+                currentState = inputState;
+                mutex.give();
+            }
+
+            risingEdgeDetected = currentState && !lastState;
+            lastState = currentState;
+
+            pros::delay(20);
+        }
+    }
+
+    void risingEdgeDetector::setInput(bool in){
+        mutex.take(TIMEOUT_MAX);
+        inputState = in;
+        mutex.give();
+    }
+
+    bool risingEdgeDetector::checkRisingEdge(){
+        bool result;
+        mutex.take(TIMEOUT_MAX);
+        result = risingEdgeDetected;
+        risingEdgeDetected = false;
+        mutex.give();
+
+        return result;
+    }
+
  }
